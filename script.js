@@ -16,22 +16,27 @@ const protossAssets = [
     {
         src: 'images/protoss/collosus.png',
         size: 250,
+        unit_type: 'ground',
     },
     {
         src: 'images/protoss/phoenix.png',
         size: 100,
+        unit_type: 'flying',
     },
     {
         src: 'images/protoss/stalker.png',
         size: 125,
+        unit_type: 'ground',
     },
     {
         src: 'images/protoss/tempest.png',
         size: 200,
+        unit_type: 'flying',
     },
     {
         src: 'images/protoss/carrier.png',
         size: 200,
+        unit_type: 'flying',
     },
 ]
 
@@ -39,30 +44,37 @@ const zergAssets = [
     {
         src: 'images/zerg/zergling.webp',
         size: 75,
+        unit_type: 'ground',
     },
     {
         src: 'images/zerg/hydralisk.png',
         size: 100,
+        unit_type: 'ground',
     },
     {
         src: 'images/zerg/queen.webp',
         size: 100,
+        unit_type: 'ground',
     },
     {
         src: 'images/zerg/mutalisk.png',
         size: 150,
+        unit_type: 'ground',
     },
     {
         src: 'images/zerg/broodlord.webp',
         size: 200,
+        unit_type: 'ground',
     },
     {
         src: 'images/zerg/ultralisk.png',
         size: 150,
+        unit_type: 'ground',
     },
     {
         src: 'images/zerg/Overlord.webp',
         size: 100,
+        unit_type: 'ground',
     }
 ]
 
@@ -70,34 +82,42 @@ const terranAssets = [
     {
         src: 'images/terran/marine.png',
         size: 100,
+        unit_type: 'ground',
     },
     {
         src: 'images/terran/goliath.png',
         size: 150,
+        unit_type: 'ground',
     },
     {
         src: 'images/terran/tank.png',
         size: 100,
+        unit_type: 'ground',
     },
     {
         src: 'images/terran/Raven.png',
         size: 100,
+        unit_type: 'ground',
     },
     {
         src: 'images/terran/banshee.png',
         size: 100,
+        unit_type: 'flying',
     },
     {
         src: 'images/terran/battlecruiser.webp',
         size: 150,
+        unit_type: 'flying',
     },
     {
         src: 'images/terran/reaper.png',
         size: 75,
+        unit_type: 'ground',
     },
     {
         src: 'images/terran/thor.png',
         size: 200,
+        unit_type: 'ground',
     }
 ]
 
