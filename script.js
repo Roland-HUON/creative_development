@@ -199,7 +199,7 @@ const draw = async () => {
             img.src = zealot.src;
         });
 
-        const x = canvas.width - zealot.size;
+        const x = canvas.width - zealot.size + 25;
         const y = canvas.height - zealot.size;
         context.drawImage(zealotImg, x, y, zealot.size, zealot.size);
     } catch (error) {
