@@ -245,12 +245,12 @@ const drawGroundUnitsOnPlanet = (images, planet) => {
     }
 };
 
-const drawStellarParticles = (planet) => {
-    const count = Math.floor(Math.random() * 1500) + 500;
+const drawStellarParticles = () => {
+    const count = Math.floor(Math.random() * 1500) + 1000;
 
     for (let i = 0; i < count; i++) {
         const x = Math.random() * canvas.width;
-        const y = Math.random() * (planet.y - planet.radiusY);
+        const y = Math.random() * canvas.height;
         const radius = Math.random() * 1.5 + 0.5;
 
         context.beginPath();
@@ -297,9 +297,9 @@ const draw = async () => {
     context.fillStyle = bgColor;
     context.fillRect(0, 0, canvas.width, canvas.height);
     try {
+        drawStellarParticles();
         const images = await loadImages(allAssets);
         const planet = await drawBasePlanetaryStation();
-        await drawStellarParticles(planet);
         await drawGroundUnitsOnPlanet(images, planet);
         await drawRandomAssetsOnPlanet(images, planet);
         const zealotImg = await new Promise((resolve, reject) => {
