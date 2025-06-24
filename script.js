@@ -7,11 +7,12 @@ canvas.height = height;
 
 const context = canvas.getContext('2d');
 
+const zealot = {
+    src: 'images/protoss/zealot.png',
+    size: 500,
+}
+
 const protossAssets = [
-    {
-        src: 'images/protoss/zealot.png',
-        size: 75,
-    },
     {
         src: 'images/protoss/collosus.png',
         size: 250,
@@ -22,7 +23,7 @@ const protossAssets = [
     },
     {
         src: 'images/protoss/stalker.png',
-        size: 100,
+        size: 125,
     },
     {
         src: 'images/protoss/tempest.png',
@@ -106,21 +107,24 @@ const loadImages = (sources) => {
     return Promise.all(sources.map(src => {
         return new Promise((resolve, reject) => {
             const img = new Image();
-            img.onload = () => resolve(img);
+            img.onload = () => {
+                img.size = src.size;
+                resolve(img);
+            };
             img.onerror = reject;
-            img.src = src;
+            img.src = src.src;
         });
     }));
 };
 
 const drawRandomAssets = (images) => {
-    const count = Math.floor(Math.random() * 75) + 1;
+    const count = Math.floor(Math.random() * 45) + 1;
 
     for (let i = 0; i < count; i++) {
         const img = images[Math.floor(Math.random() * images.length)];
-        const x = Math.random() * (canvas.width - 50);
-        const y = Math.random() * (canvas.height - 50);
-        const size = 40 + Math.random() * 30;
+        const x = Math.random() * (canvas.width - img.size);
+        const y = Math.random() * (canvas.height - img.size);
+        const size = img.size + Math.random() * 30;
         context.drawImage(img, x, y, size, size);
     }
 };
@@ -168,6 +172,16 @@ const draw = async () => {
     try {
         const images = await loadImages(allAssets);
         drawRandomAssets(images);
+        const zealotImg = await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = zealot.src;
+        });
+
+        const x = canvas.width - zealot.size;
+        const y = canvas.height - zealot.size;
+        context.drawImage(zealotImg, x, y, zealot.size, zealot.size);
     } catch (error) {
         console.error('Erreur lors du chargement des images', error);
     }
