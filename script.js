@@ -7,6 +7,9 @@ canvas.height = height;
 
 const context = canvas.getContext('2d');
 
+const baseColor1 = "#000000";
+const baseColor2 = "#191970";
+
 const zealot = {
     src: 'images/protoss/zealot.png',
     size: 500,
@@ -194,9 +197,6 @@ const randomColorBetween = (hex1, hex2) => {
     return `rgb(${mixed.r}, ${mixed.g}, ${mixed.b})`;
 }
 
-const baseColor1 = "#000000";
-const baseColor2 = "#191970";
-
 const drawBasePlanetaryStation = async () => {
     return new Promise((resolve, reject) => {
         const texture = new Image();
@@ -211,14 +211,68 @@ const drawBasePlanetaryStation = async () => {
 
             context.beginPath();
             context.fillStyle = pattern;
-            context.strokeStyle = "#d8dfe3";
+            const gradient = context.createRadialGradient(
+                x, y, radiusX * 0.95,
+                x, y, radiusX * 1.05
+            );
+            gradient.addColorStop(0, "rgba(72, 72, 72, 0.5)");
+            gradient.addColorStop(0, "rgba(72, 72, 72, 0.25)");
+            gradient.addColorStop(1, "rgba(72, 72, 72, 0)");
             context.lineWidth = 10; 
             context.ellipse(x, y, radiusX, radiusY, 0, Math.PI, 2 * Math.PI);
             context.closePath();
             context.fill();
+            context.strokeStyle = gradient;
+            context.lineWidth = 10;
             context.stroke();
             resolve({ x, y, radiusX, radiusY });
         };
+        texture.onerror = reject;
+    });
+};
+
+const drawBluePlanetaryStation = async () => {
+    return new Promise((resolve, reject) => {
+        const texture = new Image();
+        const randomTexture = Math.floor(Math.random() * 3) + 1;
+        texture.src = `images/textures/texture_blue_planetary-${randomTexture}.png`;
+
+        texture.onload = () => {
+            const radius = canvas.width / 1.5;
+            const centerX = 0;
+            const centerY = 300;
+
+            context.save();
+            context.beginPath();
+            context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            context.closePath();
+            context.clip();
+
+            context.drawImage(texture, centerX - radius, centerY - radius, radius * 2, radius * 2);
+            context.restore();
+
+            const gradient = context.createRadialGradient(
+                centerX, centerY, radius * 0.95,
+                centerX, centerY, radius * 1.05
+            );
+            gradient.addColorStop(0, "rgba(0, 0, 255, 0.5)");
+            gradient.addColorStop(0, "rgba(0, 0, 255, 0.25)");
+            gradient.addColorStop(1, "rgba(0, 0, 255, 0)");
+
+            context.beginPath();
+            context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            context.strokeStyle = gradient;
+            context.lineWidth = 20;
+            context.stroke();
+
+            resolve({
+                x: centerX,
+                y: centerY,
+                radiusX: radius,
+                radiusY: radius
+            });
+        };
+
         texture.onerror = reject;
     });
 };
@@ -292,13 +346,20 @@ const drawRandomAssetsOnPlanet = (images, planet) => {
 const draw = async () => {
     if (!context) return;
     context.clearRect(0, 0, canvas.width, canvas.height);
-    const bgColor = randomColorBetween(baseColor1, baseColor2);
 
+    const bgColor = randomColorBetween(baseColor1, baseColor2);
     context.fillStyle = bgColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.fillStyle = 'rgba(0, 0, 0, 0.55)';
     context.fillRect(0, 0, canvas.width, canvas.height);
     try {
         drawStellarParticles();
         const images = await loadImages(allAssets);
+        const bluePlanetaryRate = Math.random();
+        if (bluePlanetaryRate > 0.5) {
+            await drawBluePlanetaryStation();
+        }
         const planet = await drawBasePlanetaryStation();
         await drawGroundUnitsOnPlanet(images, planet);
         await drawRandomAssetsOnPlanet(images, planet);
