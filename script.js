@@ -207,11 +207,12 @@ const drawBasePlanetaryStation = async () => {
             const x = canvas.width / 2;
             const y = canvas.height;
             const radiusX = canvas.width / 1.5;
-            const radiusY = radiusX * 0.4;
+            const radiusY = radiusX * 0.6;
 
             context.beginPath();
             context.fillStyle = pattern;
             context.strokeStyle = "#d8dfe3";
+            context.lineWidth = 10; 
             context.ellipse(x, y, radiusX, radiusY, 0, Math.PI, 2 * Math.PI);
             context.closePath();
             context.fill();
@@ -237,10 +238,25 @@ const drawGroundUnitsOnPlanet = (images, planet) => {
             x = planet.x + r * planet.radiusX * Math.cos(angle);
             y = planet.y + r * planet.radiusY * Math.sin(angle);
             tries++;
-        } while ((x < 0 || x > canvas.width || y < canvas.height - planet.radiusY) && tries < 10);
+        } while ((x < 0 || x > canvas.width || y < canvas.height - planet.radiusY - 100) && tries < 20);
 
         const size = img.size + Math.random() * 20;
         context.drawImage(img, x - size / 2, y - size / 2, size, size);
+    }
+};
+
+const drawStellarParticles = (planet) => {
+    const count = Math.floor(Math.random() * 1500) + 500;
+
+    for (let i = 0; i < count; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * (planet.y - planet.radiusY);
+        const radius = Math.random() * 1.5 + 0.5;
+
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2);
+        context.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.8 + 0.2})`;
+        context.fill();
     }
 };
 
@@ -283,6 +299,7 @@ const draw = async () => {
     try {
         const images = await loadImages(allAssets);
         const planet = await drawBasePlanetaryStation();
+        await drawStellarParticles(planet);
         await drawGroundUnitsOnPlanet(images, planet);
         await drawRandomAssetsOnPlanet(images, planet);
         const zealotImg = await new Promise((resolve, reject) => {
