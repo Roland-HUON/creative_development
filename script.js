@@ -17,16 +17,22 @@ const zealot = {
 
 const hero = [
     {
-        src: 'images/protoss/hero.png',
-        size: 100,
+        src: 'images/heros/kerrigan.png',
+        sizeX: 700,
+        sizeY: 700,
+        color: "#6614b8",
     },
     {
-        src: 'images/protoss/hero.png',
-        size: 100,
+        src: 'images/heros/artanis.png',
+        sizeX: 700,
+        sizeY: 700,
+        color: "#0080ff",
     },
     {
-        src: 'images/protoss/hero.png',
-        size: 100,
+        src: 'images/heros/raynor.png',
+        sizeX: 700,
+        sizeY: 700,
+        color: "#ffffff",
     }
 ]
 
@@ -156,18 +162,6 @@ const loadImages = (sources) => {
     }));
 };
 
-const drawRandomAssets = (images) => {
-    const count = Math.floor(Math.random() * 45) + 1;
-
-    for (let i = 0; i < count; i++) {
-        const img = images[Math.floor(Math.random() * images.length)];
-        const x = Math.random() * (canvas.width - img.size);
-        const y = Math.random() * (canvas.height - img.size);
-        const size = img.size + Math.random() * 30;
-        context.drawImage(img, x, y, size, size);
-    }
-};
-
 const hexToRgb = (hex) => {
     hex = hex.replace(/^#/, '');
     if (hex.length === 3) {
@@ -245,6 +239,7 @@ const drawBluePlanetaryStation = async () => {
             context.save();
             context.beginPath();
             context.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            context.filter = `brightness(0.65)`;
             context.closePath();
             context.clip();
 
@@ -310,12 +305,15 @@ const drawStellarParticles = () => {
         context.beginPath();
         context.arc(x, y, radius, 0, Math.PI * 2);
         context.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.8 + 0.2})`;
+        context.filter = `brightness(0.55)`;
         context.fill();
+        context.restore();
+        context.filter = `brightness(1)`;   
     }
 };
 
 const drawRandomAssetsOnPlanet = (images, planet) => {
-    const count = Math.floor(Math.random() * 45) + 1;
+    const count = Math.floor(Math.random() * 75) + 1;
 
     for (let i = 0; i < count; i++) {
         const img = images[Math.floor(Math.random() * images.length)];
@@ -339,8 +337,34 @@ const drawRandomAssetsOnPlanet = (images, planet) => {
         } while (tries < maxTries);
 
         const size = img.size + Math.random() * 30;
+
+        const brightnessFactor = 0.3 + 0.5 * (i / count);
+
+        context.save();
+        context.filter = `brightness(${brightnessFactor})`;
         context.drawImage(img, x, y, size, size);
+        context.restore();
     }
+};
+
+const drawHeroes = async (heroes) => {
+    const hero = heroes[Math.floor(Math.random() * heroes.length)];
+    const { img } = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve({ img });
+        img.onerror = reject;
+        img.src = hero.src;
+    });
+
+    const x = canvas.width / 2 - hero.sizeX / 2;
+    const y = canvas.height / 2 - hero.sizeY / 2 + 100;
+
+    context.save();
+    context.globalAlpha = 0.6;
+    context.shadowColor = hero.color;
+    context.shadowBlur = 30;
+    context.drawImage(img, x, y, hero.sizeX, hero.sizeY);
+    context.restore();
 };
 
 const draw = async () => {
@@ -359,6 +383,9 @@ const draw = async () => {
         const bluePlanetaryRate = Math.random();
         if (bluePlanetaryRate > 0.5) {
             await drawBluePlanetaryStation();
+        }
+        if (Math.random() > 0.1) {
+            await drawHeroes(hero);
         }
         const planet = await drawBasePlanetaryStation();
         await drawGroundUnitsOnPlanet(images, planet);
