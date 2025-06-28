@@ -72,3 +72,13 @@ canvas {
     height: 80vh;
     position: relative;
 }
+#canvas2{
+    position: absolute;
+    z-index: 2;
+    bottom: 47px;
+    right: 110px;
+    height: 143px;
+    width: 136px;
+    border: unset;
+    border-radius: 0;
+}

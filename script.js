@@ -1,3 +1,12 @@
+const canvas2 = document.getElementById('canvas2');
+const width2 = canvas2.clientWidth*2;
+const height2 = canvas2.clientHeight*2;
+
+canvas2.width = width2;
+canvas2.height = height2;
+
+const context2 = canvas2.getContext('2d');
+
 const canvas = document.getElementById('canvas');
 const width = canvas.clientWidth*2;
 const height = canvas.clientHeight*2;
