@@ -195,32 +195,45 @@ const drawBasePlanetaryStation = async () => {
     return new Promise((resolve, reject) => {
         const texture = new Image();
         texture.src = 'images/textures/moon_texture.jpg';
-        texture.onload = () => {
-            const pattern = context.createPattern(texture, 'repeat');
 
+        texture.onload = () => {
             const x = canvas.width / 2;
             const y = canvas.height;
             const radiusX = canvas.width / 1.5;
             const radiusY = radiusX * 0.6;
-
+            context.save();
             context.beginPath();
-            context.fillStyle = pattern;
+            context.ellipse(x, y, radiusX, radiusY, 0, Math.PI, 2 * Math.PI);
+            context.closePath();
+            context.clip();
+
+            context.drawImage(
+                texture,
+                x - radiusX,
+                y - radiusY,
+                radiusX * 2,
+                radiusY * 2
+            );
+
+            context.restore();
+
             const gradient = context.createRadialGradient(
                 x, y, radiusX * 0.95,
                 x, y, radiusX * 1.05
             );
             gradient.addColorStop(0, "rgba(72, 72, 72, 0.5)");
-            gradient.addColorStop(0, "rgba(72, 72, 72, 0.25)");
+            gradient.addColorStop(0.5, "rgba(72, 72, 72, 0.25)");
             gradient.addColorStop(1, "rgba(72, 72, 72, 0)");
-            context.lineWidth = 10; 
+
+            context.beginPath();
             context.ellipse(x, y, radiusX, radiusY, 0, Math.PI, 2 * Math.PI);
-            context.closePath();
-            context.fill();
             context.strokeStyle = gradient;
             context.lineWidth = 10;
             context.stroke();
+
             resolve({ x, y, radiusX, radiusY });
         };
+
         texture.onerror = reject;
     });
 };
