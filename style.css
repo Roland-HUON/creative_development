@@ -76,9 +76,10 @@ canvas {
     position: absolute;
     z-index: 2;
     bottom: 47px;
-    right: 110px;
+    right: 122px;
     height: 143px;
     width: 136px;
     border: unset;
     border-radius: 0;
+    transform: rotate(-5.2deg);
 }

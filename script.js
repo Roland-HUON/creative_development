@@ -7,6 +7,87 @@ canvas2.height = height2;
 
 const context2 = canvas2.getContext('2d');
 
+let time = 0;
+const centerX = width2 / 2 - 100;
+const centerY = height2 - 300;
+const swordHeight = Math.sqrt(height2 * height2 + width2 * width2);
+const swordWidth = width2 * 0.18;
+
+const swordAngle = -230;
+
+function drawZealotSwordFlame() {
+    context2.clearRect(0, 0, width2, height2);
+    context2.save();
+    context2.translate(centerX, centerY);
+    context2.rotate(swordAngle);
+
+    // --- Flamme périphérique (Glow vif et animé) ---
+    const flameGradient = context2.createRadialGradient(0, 0, 0, 0, 0, swordHeight * 1.2);
+    flameGradient.addColorStop(0.0, `rgba(255,255,255,0.5)`);      // Cœur blanc lumineux
+    flameGradient.addColorStop(0, `rgba(50, 130, 255, 0.8)`);      // Bleu électrique vif
+    flameGradient.addColorStop(0.3, `rgba(0, 80, 200, 0.5)`);      // Bleu profond
+    flameGradient.addColorStop(1, `rgba(0, 30, 120, 0.1)`);        // Sombre diffus
+
+    context2.fillStyle = flameGradient;
+    context2.shadowColor = 'rgba(18, 69, 163, 0.9)';
+    context2.shadowBlur = 40;
+    context2.globalCompositeOperation = 'soft-light';
+
+    context2.beginPath();
+    context2.moveTo(0, 0);
+
+    for (let y = 0; y >= -swordHeight; y -= 12) {
+        const progress = -y / swordHeight;
+        const wave = Math.sin((y + time * 60) / 25 + progress * 5) * 6 * progress;
+        const offsetX = -swordWidth * 1.5 * progress + wave;
+        context2.lineTo(offsetX, y);
+    }
+    for (let y = -swordHeight; y <= 0; y += 12) {
+        const progress = -y / swordHeight;
+        const wave = Math.sin((y + time * 60 + Math.PI) / 25 + progress * 5) * 6 * progress;
+        const offsetX = swordWidth * 1.5 * progress + wave;
+        context2.lineTo(offsetX, y);
+    }
+
+    context2.closePath();
+    context2.fill();
+    context2.globalCompositeOperation = 'source-over';
+
+    // --- Cœur de l’épée (Cône lumineux) ---
+    const innerGradient = context2.createLinearGradient(0, 0, 0, -swordHeight);
+    innerGradient.addColorStop(0, 'rgba(180, 240, 255, 0.6)');
+    innerGradient.addColorStop(0.6, 'rgba(100, 180, 255, 0.4)');
+    innerGradient.addColorStop(1, 'rgba(50, 120, 255, 0.2)');
+
+    context2.fillStyle = innerGradient;
+    context2.shadowBlur = 0;
+
+    context2.beginPath();
+    context2.moveTo(0, 0);
+    context2.lineTo(-swordWidth / 2, -swordHeight);
+    context2.lineTo(swordWidth / 2, -swordHeight);
+    context2.closePath();
+    context2.fill();
+
+    // --- Pulsation lumineuse à la base ---
+    const pulse = Math.sin(time * 3) * 0.2 + 0.8;
+    const pulseGradient = context2.createRadialGradient(0, 0, 0, 0, 0, 40);
+    pulseGradient.addColorStop(0, `rgba(100,200,255,${0.4 * pulse})`);
+    pulseGradient.addColorStop(1, 'rgba(0,0,0,0)');
+
+    context2.fillStyle = pulseGradient;
+    context2.beginPath();
+    context2.arc(0, 0, 40, 0, Math.PI * 2);
+    context2.fill();
+
+    context2.restore();
+
+    time += 0.08;
+    requestAnimationFrame(drawZealotSwordFlame);
+}
+
+drawZealotSwordFlame();
+
 const canvas = document.getElementById('canvas');
 const width = canvas.clientWidth*2;
 const height = canvas.clientHeight*2;
