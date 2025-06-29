@@ -442,51 +442,57 @@ const drawBasePlanetaryStation = async () => {
     });
 };
 
-const drawBluePlanetaryStation = async () => {
-    return new Promise((resolve, reject) => {
-        const texture = new Image();
-        const randomTexture = Math.floor(Math.random() * 3) + 1;
-        texture.src = `images/textures/texture_blue_planetary-${randomTexture}.png`;
+const drawMultipleBluePlanetaryStations = async (count = 3) => {
+    const promises = [];
 
-        texture.onload = () => {
-            const radius = canvas.width / 1.5;
-            const centerX = 0;
-            const centerY = 300;
+    for (let i = 0; i < count; i++) {
+        promises.push(new Promise((resolve, reject) => {
+            const texture = new Image();
+            const randomTexture = Math.floor(Math.random() * 3) + 1;
+            texture.src = `images/textures/texture_blue_planetary-${randomTexture}.png`;
 
-            context.save();
-            context.beginPath();
-            context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            context.filter = `brightness(0.65)`;
-            context.closePath();
-            context.clip();
+            texture.onload = () => {
+                const maxRadius = canvas.width / 1.5;
+                const radius = maxRadius * (0.3 + Math.random() * 0.7);
+                
+                const padding = 100;
+                const centerX = padding + Math.random() * (canvas.width - radius * 2 - padding * 2);
+                const centerY = padding + Math.random() * (canvas.height - radius * 2 - padding * 2);
 
-            context.drawImage(texture, centerX - radius, centerY - radius, radius * 2, radius * 2);
-            context.restore();
+                const brightness = 0.4 + (i / count) * 0.6;
 
-            const gradient = context.createRadialGradient(
-                centerX, centerY, radius * 0.95,
-                centerX, centerY, radius * 1.05
-            );
-            gradient.addColorStop(0, "rgba(0, 0, 255, 0.5)");
-            gradient.addColorStop(0, "rgba(0, 0, 255, 0.25)");
-            gradient.addColorStop(1, "rgba(0, 0, 255, 0)");
+                context.save();
+                context.beginPath();
+                context.arc(centerX + radius, centerY + radius, radius, 0, Math.PI * 2);
+                context.filter = `brightness(${brightness})`;
+                context.closePath();
+                context.clip();
 
-            context.beginPath();
-            context.arc(centerX, centerY, radius, 0, Math.PI * 2);
-            context.strokeStyle = gradient;
-            context.lineWidth = 20;
-            context.stroke();
+                context.drawImage(texture, centerX, centerY, radius * 2, radius * 2);
+                context.restore();
 
-            resolve({
-                x: centerX,
-                y: centerY,
-                radiusX: radius,
-                radiusY: radius
-            });
-        };
+                const gradient = context.createRadialGradient(
+                    centerX + radius, centerY + radius, radius * 0.95,
+                    centerX + radius, centerY + radius, radius * 1.05
+                );
+                gradient.addColorStop(0, `rgba(0, 0, 255, ${0.5 * brightness})`);
+                gradient.addColorStop(0.5, `rgba(0, 0, 255, ${0.25 * brightness})`);
+                gradient.addColorStop(1, "rgba(0, 0, 255, 0)");
 
-        texture.onerror = reject;
-    });
+                context.beginPath();
+                context.arc(centerX + radius, centerY + radius, radius, 0, Math.PI * 2);
+                context.strokeStyle = gradient;
+                context.lineWidth = 20;
+                context.stroke();
+
+                resolve();
+            };
+
+            texture.onerror = reject;
+        }));
+    }
+
+    await Promise.all(promises);
 };
 
 const drawGroundUnitsOnPlanet = (images, planet) => {
@@ -599,9 +605,10 @@ const draw = async () => {
         const images = await loadImages(allAssets);
         const bluePlanetaryRate = Math.random();
         if (bluePlanetaryRate > 0.5) {
-            await drawBluePlanetaryStation();
+            const count = Math.floor(Math.random() * 3) + 1;
+            await drawMultipleBluePlanetaryStations(count);
         }
-        if (Math.random() > 0.1) {
+        if (Math.random() > 0.85) {
             await drawHeroes(hero);
         }
         const planet = await drawBasePlanetaryStation();
