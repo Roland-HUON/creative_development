@@ -590,3 +590,8 @@ const draw = async () => {
 };
 
 draw();
+
+const button = document.getElementById('button');
+button.addEventListener('click', () => {
+    draw();
+});
