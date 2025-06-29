@@ -14,6 +14,45 @@ const swordHeight = Math.sqrt(height2 * height2 + width2 * width2);
 const swordWidth = width2 * 0.18;
 
 const swordAngle = -230;
+const flareCount = 15;
+const flares = [];
+
+for (let i = 0; i < flareCount; i++) {
+    flares.push({
+        offsetY: -Math.random() * swordHeight,
+        lifetime: Math.random() * 60 + 30,
+        age: 0,
+        side: Math.random() < 0.5 ? -1 : 1
+    });
+}
+
+function drawFlameShape(context, baseX, baseY, height, width, timeOffset, flip = 1) {
+    context.beginPath();
+    context.moveTo(baseX, baseY);
+
+    const segments = 5;
+    for (let i = 1; i <= segments; i++) {
+        const t = i / segments;
+        const y = baseY - height * t;
+        const wobble = Math.sin(time * 5 + timeOffset + i) * 4 * (1 - t);
+        const x = baseX + flip * (wobble + width * Math.sin(t * Math.PI));
+
+        context.lineTo(x, y);
+    }
+
+    context.lineTo(baseX, baseY - height);
+    
+    for (let i = segments; i >= 0; i--) {
+        const t = i / segments;
+        const y = baseY - height * t;
+        const wobble = Math.sin(time * 5 + timeOffset + i + 2.5) * 4 * (1 - t);
+        const x = baseX - flip * (wobble + width * Math.sin(t * Math.PI));
+
+        context.lineTo(x, y);
+    }
+
+    context.closePath();
+}
 
 function drawZealotSwordFlame() {
     context2.clearRect(0, 0, width2, height2);
@@ -68,6 +107,36 @@ function drawZealotSwordFlame() {
     context2.lineTo(swordWidth / 2, -swordHeight);
     context2.closePath();
     context2.fill();
+
+    // --- Flammes dynamiques épaisses sur les bords ---
+    for (let flare of flares) {
+        const progress = flare.age / flare.lifetime;
+        const alpha = Math.sin(progress * Math.PI);
+    
+        const flareHeight = 40 + Math.sin(time * 2 + flare.offsetY / 20) * 10;
+        const flareWidth = 6;
+    
+        const progressY = -flare.offsetY / swordHeight;
+        const wave = Math.sin((flare.offsetY + time * 60) / 25 + progressY * 5) * 6 * progressY;
+        const baseX = (swordWidth * 1.5 * progressY + wave) * flare.side;
+        const baseY = flare.offsetY + Math.sin(time * 3 + flare.offsetY / 15) * 5;
+    
+        drawFlameShape(context2, baseX, baseY, flareHeight, flareWidth, flare.offsetY / 30, flare.side);
+    
+        context2.fillStyle = `rgba(80,160,255,${0.5 * alpha})`;
+        context2.shadowColor = `rgba(100,200,255,${0.3 * alpha})`;
+        context2.shadowBlur = 12;
+        context2.fill();
+    
+        flare.age++;
+        if (flare.age > flare.lifetime) {
+            flare.offsetY = -Math.random() * swordHeight;
+            flare.lifetime = Math.random() * 60 + 30;
+            flare.age = 0;
+            flare.side = Math.random() < 0.5 ? -1 : 1;
+        }
+    }
+       
 
     // --- Pulsation lumineuse à la base ---
     const pulse = Math.sin(time * 3) * 0.2 + 0.8;
