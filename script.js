@@ -1,6 +1,6 @@
 const canvas2 = document.getElementById('canvas2');
-const width2 = canvas2.clientWidth*2;
-const height2 = canvas2.clientHeight*2;
+const width2 = canvas2.clientWidth * 2;
+const height2 = canvas2.clientHeight * 2;
 
 canvas2.width = width2;
 canvas2.height = height2;
@@ -16,6 +16,31 @@ const swordWidth = width2 * 0.18;
 const swordAngle = -230;
 const flareCount = 15;
 const flares = [];
+
+const flamePresets = [
+    {
+        core: ['rgba(180, 240, 255, 1)', 'rgba(100, 180, 255, 0.6)', 'rgba(50, 120, 255, 0.2)'], // Bleu
+        glow: ['rgba(0,150,255,0.5)', 'rgba(0,120,255,0.3)', 'rgba(0,80,200,0.0)'],
+        pulse: 'rgba(100,200,255,'
+    },
+    {
+        core: ['rgba(220, 180, 255, 1)', 'rgba(160, 100, 255, 0.6)', 'rgba(100, 50, 200, 0.2)'], // Violet
+        glow: ['rgba(180,0,255,0.4)', 'rgba(140,0,200,0.2)', 'rgba(80,0,150,0.0)'],
+        pulse: 'rgba(180,100,255,'
+    },
+    {
+        core: ['rgba(180, 255, 180, 1)', 'rgba(100, 255, 100, 0.6)', 'rgba(50, 200, 50, 0.2)'], // Vert
+        glow: ['rgba(0,255,150,0.4)', 'rgba(0,200,100,0.2)', 'rgba(0,150,80,0.0)'],
+        pulse: 'rgba(100,255,180,'
+    },
+    {
+        core: ['rgba(255, 255, 180, 1)', 'rgba(255, 200, 100, 0.6)', 'rgba(255, 150, 50, 0.2)'], // Jaune
+        glow: ['rgba(255,220,0,0.4)', 'rgba(200,150,0,0.2)', 'rgba(150,100,0,0.0)'],
+        pulse: 'rgba(255,200,100,'
+    }
+];
+
+let currentFlame = flamePresets[Math.floor(Math.random() * flamePresets.length)];
 
 for (let i = 0; i < flareCount; i++) {
     flares.push({
@@ -36,22 +61,43 @@ function drawFlameShape(context, baseX, baseY, height, width, timeOffset, flip =
         const y = baseY - height * t;
         const wobble = Math.sin(time * 5 + timeOffset + i) * 4 * (1 - t);
         const x = baseX + flip * (wobble + width * Math.sin(t * Math.PI));
-
         context.lineTo(x, y);
     }
 
     context.lineTo(baseX, baseY - height);
-    
+
     for (let i = segments; i >= 0; i--) {
         const t = i / segments;
         const y = baseY - height * t;
         const wobble = Math.sin(time * 5 + timeOffset + i + 2.5) * 4 * (1 - t);
         const x = baseX - flip * (wobble + width * Math.sin(t * Math.PI));
-
         context.lineTo(x, y);
     }
 
     context.closePath();
+}
+
+// 🔥 Nouvelles flammes dynamiques plasma-like
+function drawDynamicFlame(ctx, x, y, size, color) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.random() * Math.PI * 2);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2;
+        const radius = size + Math.sin(time * 2 + i) * 8;
+        const px = Math.cos(angle) * radius;
+        const py = Math.sin(angle) * radius;
+        ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.4 + Math.random() * 0.4;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = color;
+    ctx.fill();
+    ctx.restore();
 }
 
 function drawZealotSwordFlame() {
@@ -60,21 +106,19 @@ function drawZealotSwordFlame() {
     context2.translate(centerX, centerY);
     context2.rotate(swordAngle);
 
-    // --- Flamme périphérique (Glow vif et animé) ---
+    // Flamme périphérique
     const flameGradient = context2.createRadialGradient(0, 0, 0, 0, 0, swordHeight * 1.2);
-    flameGradient.addColorStop(0.0, `rgba(255,255,255,0.5)`);      // Cœur blanc lumineux
-    flameGradient.addColorStop(0, `rgba(50, 130, 255, 0.8)`);      // Bleu électrique vif
-    flameGradient.addColorStop(0.3, `rgba(0, 80, 200, 0.5)`);      // Bleu profond
-    flameGradient.addColorStop(1, `rgba(0, 30, 120, 0.1)`);        // Sombre diffus
+    flameGradient.addColorStop(0.0, currentFlame.glow[0]);
+    flameGradient.addColorStop(0.4, currentFlame.glow[1]);
+    flameGradient.addColorStop(1, currentFlame.glow[2]);
 
     context2.fillStyle = flameGradient;
-    context2.shadowColor = 'rgba(18, 69, 163, 0.9)';
+    context2.shadowColor = currentFlame.glow[0];
     context2.shadowBlur = 40;
     context2.globalCompositeOperation = 'soft-light';
 
     context2.beginPath();
     context2.moveTo(0, 0);
-
     for (let y = 0; y >= -swordHeight; y -= 12) {
         const progress = -y / swordHeight;
         const wave = Math.sin((y + time * 60) / 25 + progress * 5) * 6 * progress;
@@ -87,20 +131,18 @@ function drawZealotSwordFlame() {
         const offsetX = swordWidth * 1.5 * progress + wave;
         context2.lineTo(offsetX, y);
     }
-
     context2.closePath();
     context2.fill();
     context2.globalCompositeOperation = 'source-over';
 
-    // --- Cœur de l’épée (Cône lumineux) ---
+    // Cœur de l’épée
     const innerGradient = context2.createLinearGradient(0, 0, 0, -swordHeight);
-    innerGradient.addColorStop(0, 'rgba(180, 240, 255, 0.6)');
-    innerGradient.addColorStop(0.6, 'rgba(100, 180, 255, 0.4)');
-    innerGradient.addColorStop(1, 'rgba(50, 120, 255, 0.2)');
+    innerGradient.addColorStop(0, currentFlame.core[0]);
+    innerGradient.addColorStop(0.6, currentFlame.core[1]);
+    innerGradient.addColorStop(1, currentFlame.core[2]);
 
     context2.fillStyle = innerGradient;
     context2.shadowBlur = 0;
-
     context2.beginPath();
     context2.moveTo(0, 0);
     context2.lineTo(-swordWidth / 2, -swordHeight);
@@ -108,26 +150,25 @@ function drawZealotSwordFlame() {
     context2.closePath();
     context2.fill();
 
-    // --- Flammes dynamiques épaisses sur les bords ---
+    // Flammes dynamiques épaisses
     for (let flare of flares) {
         const progress = flare.age / flare.lifetime;
         const alpha = Math.sin(progress * Math.PI);
-    
         const flareHeight = 40 + Math.sin(time * 2 + flare.offsetY / 20) * 10;
         const flareWidth = 6;
-    
+
         const progressY = -flare.offsetY / swordHeight;
         const wave = Math.sin((flare.offsetY + time * 60) / 25 + progressY * 5) * 6 * progressY;
         const baseX = (swordWidth * 1.5 * progressY + wave) * flare.side;
         const baseY = flare.offsetY + Math.sin(time * 3 + flare.offsetY / 15) * 5;
-    
+
         drawFlameShape(context2, baseX, baseY, flareHeight, flareWidth, flare.offsetY / 30, flare.side);
-    
-        context2.fillStyle = `rgba(80,160,255,${0.5 * alpha})`;
-        context2.shadowColor = `rgba(100,200,255,${0.3 * alpha})`;
+
+        context2.fillStyle = `${currentFlame.glow[0].replace('0.5', `${0.5 * alpha}`)}`;
+        context2.shadowColor = currentFlame.glow[0];
         context2.shadowBlur = 12;
         context2.fill();
-    
+
         flare.age++;
         if (flare.age > flare.lifetime) {
             flare.offsetY = -Math.random() * swordHeight;
@@ -136,21 +177,25 @@ function drawZealotSwordFlame() {
             flare.side = Math.random() < 0.5 ? -1 : 1;
         }
     }
-       
 
-    // --- Pulsation lumineuse à la base ---
+    // ✨ Flammes périphériques organiques supplémentaires
+    for (let i = 0; i < 5; i++) {
+        const offsetX = (Math.random() - 0.5) * swordWidth * 2;
+        const offsetY = -Math.random() * swordHeight;
+        drawDynamicFlame(context2, offsetX, offsetY, 15 + Math.random() * 10, currentFlame.glow[0]);
+    }
+
+    // Pulsation lumineuse à la base
     const pulse = Math.sin(time * 3) * 0.2 + 0.8;
     const pulseGradient = context2.createRadialGradient(0, 0, 0, 0, 0, 40);
-    pulseGradient.addColorStop(0, `rgba(100,200,255,${0.4 * pulse})`);
+    pulseGradient.addColorStop(0, `${currentFlame.pulse}${0.4 * pulse})`);
     pulseGradient.addColorStop(1, 'rgba(0,0,0,0)');
-
     context2.fillStyle = pulseGradient;
     context2.beginPath();
     context2.arc(0, 0, 40, 0, Math.PI * 2);
     context2.fill();
 
     context2.restore();
-
     time += 0.08;
     requestAnimationFrame(drawZealotSwordFlame);
 }
@@ -594,4 +639,11 @@ draw();
 const button = document.getElementById('button');
 button.addEventListener('click', () => {
     draw();
+    currentFlame = flamePresets[Math.floor(Math.random() * flamePresets.length)];
+    for (let flare of flares) {
+      flare.offsetY = -Math.random() * swordHeight;
+      flare.lifetime = Math.random() * 60 + 30;
+      flare.age = 0;
+      flare.side = Math.random() < 0.5 ? -1 : 1;
+    }
 });
