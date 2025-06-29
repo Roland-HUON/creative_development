@@ -73,7 +73,7 @@ canvas {
     height: 80vh;
     position: relative;
 }
-#canvas2{
+#canvas2, #canvas3{
     position: absolute;
     z-index: 2;
     bottom: 47px;
@@ -83,6 +83,9 @@ canvas {
     border: unset;
     border-radius: 0;
     transform: rotate(-5.2deg);
+}
+#canvas3{
+    z-index: 6;
 }
 button{
     background-color: white;

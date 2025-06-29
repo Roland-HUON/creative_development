@@ -21,4 +21,6 @@ J'ai choisi le jeu "StarCraft II", un jeu de stratégie en temps réel. Le conce
 - Artanis (Protoss)
 - Raynor (Terran)
 
+Vous avez aussi une animation de trainée de flammes si vous bougez votre souris sur l'épée du Zealot.
+
 Vous pouvez cliquer sur le bouton "Générer une nouvelle cover de StarCraft" pour générer une toute nouvelle jaquette pour le jeu.

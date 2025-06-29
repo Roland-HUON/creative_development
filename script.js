@@ -1,3 +1,63 @@
+const canvas3 = document.getElementById('canvas3');
+const width3 = canvas3.clientWidth * 2;
+const height3 = canvas3.clientHeight * 2;
+
+canvas3.width = width3;
+canvas3.height = height3;
+
+const context3 = canvas3.getContext('2d');
+
+const mouseTrail = [];
+
+canvas3.addEventListener('mousemove', (e) => {
+    const rect = canvas3.getBoundingClientRect();
+    const scaleX = width3 / rect.width;
+    const scaleY = height3 / rect.height;
+
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
+    mouseTrail.push({ x, y });
+    if (mouseTrail.length > 30) mouseTrail.shift();
+});
+
+canvas3.addEventListener('mouseleave', () => {
+    mouseTrail.length = 0;
+});
+
+function drawFlameTrail() {
+    context3.clearRect(0, 0, width3, height3);
+
+    for (let i = 0; i < mouseTrail.length; i++) {
+        const trail = mouseTrail[i];
+        const progress = i / mouseTrail.length;
+
+        const flameSize = 8 + (1 - progress) * 15;
+        const alpha = 0.3 + 0.5 * (1 - progress);
+        const flicker = Math.sin(performance.now() / 100 + i) * 4;
+
+        const grad = context3.createRadialGradient(
+            trail.x + flicker, trail.y + flicker, 0,
+            trail.x, trail.y, flameSize
+        );
+        grad.addColorStop(0, currentFlame.core[0]);
+        console.log(currentFlame.core[0]);
+        grad.addColorStop(0.5, currentFlame.core[1]);
+        grad.addColorStop(1, currentFlame.core[2]);
+
+        context3.globalAlpha = alpha;
+        context3.fillStyle = grad;
+        context3.beginPath();
+        context3.arc(trail.x + flicker, trail.y + flicker, flameSize, 0, Math.PI * 2);
+        context3.fill();
+    }
+
+    context3.globalAlpha = 1;
+    requestAnimationFrame(drawFlameTrail);
+}
+
+drawFlameTrail();
+
 const canvas2 = document.getElementById('canvas2');
 const width2 = canvas2.clientWidth * 2;
 const height2 = canvas2.clientHeight * 2;
