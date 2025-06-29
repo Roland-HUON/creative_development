@@ -459,7 +459,7 @@ const drawMultipleBluePlanetaryStations = async (count = 3) => {
                 const centerX = padding + Math.random() * (canvas.width - radius * 2 - padding * 2);
                 const centerY = padding + Math.random() * (canvas.height - radius * 2 - padding * 2);
 
-                const brightness = 0.4 + (i / count) * 0.6;
+                const brightness = 0.5 + (i / count) * 0.5;
 
                 context.save();
                 context.beginPath();
