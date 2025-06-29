@@ -508,12 +508,19 @@ const drawGroundUnitsOnPlanet = (images, planet) => {
             const angle = Math.random() * Math.PI;
             const r = Math.sqrt(Math.random());
             x = planet.x + r * planet.radiusX * Math.cos(angle);
-            y = planet.y + r * planet.radiusY * Math.sin(angle);
+            y = planet.y + r * planet.radiusY * Math.sin(angle) - 300;
             tries++;
         } while ((x < 0 || x > canvas.width || y < canvas.height - planet.radiusY - 100) && tries < 20);
 
         const size = img.size + Math.random() * 20;
         context.drawImage(img, x - size / 2, y - size / 2, size, size);
+
+        const brightnessFactor = 0.3 + 0.5 * (i / count);
+
+        context.save();
+        context.filter = `brightness(${brightnessFactor})`;
+        context.drawImage(img, x - size / 2, y - size / 2, size, size);
+        context.restore();
     }
 };
 
@@ -536,7 +543,7 @@ const drawStellarParticles = () => {
 };
 
 const drawRandomAssetsOnPlanet = (images, planet) => {
-    const count = Math.floor(Math.random() * 75) + 1;
+    const count = Math.floor(Math.random() * 60) + 1;
 
     for (let i = 0; i < count; i++) {
         const img = images[Math.floor(Math.random() * images.length)];
